@@ -1,6 +1,6 @@
 var plevel = 3
 
-var porientation = 0;
+var porientation = -1;
 var reDrawBlocks = false;
 var shuffled = true;
 
@@ -31,6 +31,8 @@ imagebt.addEventListener("load", loadNewImage);
 
 window.addEventListener("orientationchange", orientationChange);
 window.addEventListener("resize", sizeChange);
+
+showImageBlocks();
 
 function levelChanged(evt) {
 	plevel = 1 +  Number(evt.target.value);

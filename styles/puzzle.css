@@ -31,7 +31,7 @@ li {
 @media screen and (orientation: portrait) {
 	body {
 		display: grid;
-		grid-template-rows: 92% 8%;
+		grid-template-rows: 88% 12%;
 		grid-template-columns: 33% 33% 34%; 
 	}
 
@@ -62,7 +62,7 @@ li {
 	body {
 		display: grid;
 		grid-template-rows: 33% 33% 34%;
-		grid-template-columns: 90% 10%;
+		grid-template-columns: 88% 12%;
 	}
 
 	#puzzle_area {
