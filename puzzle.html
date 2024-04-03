@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<!--ios和Android都支持, 当把这个页面添加到主屏幕时全屏运行。-->
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<!--仅Android支持-->
+		<meta name="mobile-web-app-capable" content="yes">
+
+		<meta name="application-name" content="快乐">
+		
+		<!-- 放在桌面上的图标 -->
+		<link rel="apple-touch-icon-precomposed" href="images/icon.png">
+		<!--仅Android支持-->
+		<link rel="icon" href="images/icon.png">
+		
+		<!-- 状态栏的背景色 -->
+		<meta name="theme-color" content="#fff">
+
+        <title>开心一刻</title>
+        <link rel="stylesheet" href="styles/puzzle.css" />
+        <script src="scripts/puzzle.js" defer></script>
+	</head>
+<body>
+<div id="puzzle_area">
+	<ul id="img_area">
+	</ul>
+</div>
+<div id="toselect" >
+	<img id="selectbt" src="images/SouthStarkLighthouse.jpg" alter="Select your image"/>
+</div>
+<button id="play">挑战</button>
+<select id="level">
+	<option value="1">★</option>
+	<option value="2" selected>★★</option>
+	<option value="3">★★★</option>
+</select>
+<input id="selectimage" type="file" accept=".jpg, .png" />
+<audio id="DoneAudio" src="audio/Success.wav"> </audio>
+</body>
+</html>
