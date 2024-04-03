@@ -127,7 +127,7 @@ function showImageBlocks() {
 		imageview.appendChild(block);	
 	}
 	shuffled = false;
-	playbt.innerText = "挑战";
+//	playbt.innerText = "挑战";
 
 	reDrawBlocks = false;
 }
@@ -224,11 +224,11 @@ function switchImgBlock(xID, yID) {
 function checkImageStatus() {
 	if (isImageRecovered()) {
 		shuffled = false;
-		playbt.innerText = "重来";
+//		playbt.innerText = "重来";
 		audio.play();
 	} else {
 		shuffled = true;
-		playbt.innerText = "原图";
+//		playbt.innerText = "原图";
 	}
 }
 
@@ -252,7 +252,7 @@ function blockShuffle() {
     fullyShuffleBlocks();
 	
 	shuffled = true;
-	playbt.innerText = "原图";
+//	playbt.innerText = "原图";
 }
 
 //将小图块完全打乱
@@ -369,7 +369,8 @@ function orientationChange() {
 }
 
 function sizeChange() {
-	if(reDrawBlocks) {
-		showImageBlocks();
-	}
+	showImageBlocks();
+//	if(reDrawBlocks) {
+//		showImageBlocks();
+//	}
 }
