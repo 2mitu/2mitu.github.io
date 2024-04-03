@@ -1,10 +1,74 @@
-var grids = 3;
+var plevel = 3
+
+var porientation = 0;
+var reDrawBlocks = false;
+var shuffled = true;
+
+//记录移动到页面的位置
+var toX = 0;
+var toY = 0;
+var lastTouch = 0;
+const posdiff = 80;
+
+//顺序
 var hpair, vpair, disOrder, idOrder;
 var hOrderSet, vOrderSet;
-var article_W, article_H;
-var img_small, elmt_puzzle;
-var steps = 0;
-var startTime, nowTime;
+
+const playbt = document.querySelector('#play');
+const imagebt = document.querySelector('#selectbt');
+const selectimg = document.querySelector('#selectimage');
+const puzzleview = document.querySelector('#puzzle_area');
+const imageview = document.querySelector('#img_area');
+const audio = document.getElementById("DoneAudio");      
+const level = document.querySelector('#level');
+
+selectimg.addEventListener('change', updateImageDisplay);
+level.addEventListener('change', levelChanged);
+
+playbt.addEventListener('touchstart', touchPlay);
+imagebt.addEventListener('touchstart', touchSelect);
+imagebt.addEventListener("load", loadNewImage);
+
+window.addEventListener("orientationchange", orientationChange);
+window.addEventListener("resize", sizeChange);
+
+function levelChanged(evt) {
+	plevel = 1 +  Number(evt.target.value);
+	showImageBlocks();
+	blockShuffle();	
+}
+
+
+function loadNewImage() {
+	console.log("hahaha");
+	showImageBlocks();
+}
+
+function touchSelect(evt) {
+	evt.preventDefault();
+	evt.target.addEventListener('touchend', toSelect);
+}
+
+function toSelect(evt) {
+	evt.preventDefault();
+	selectimg.click();
+	evt.target.removeEventListener('touchend', toSelect);
+}
+
+function touchPlay(evt) {
+	evt.preventDefault();
+	evt.target.addEventListener('touchend', toPlay);
+}
+
+function toPlay(evt) {
+	evt.preventDefault();
+	evt.target.removeEventListener('touchend', toPlay);
+	if(shuffled) {
+		showImageBlocks();
+	} else {
+		blockShuffle();		
+	}
+}
 
 //初始化 小图块的相邻关系集合
 function initilizeOrderSet() {
@@ -14,289 +78,179 @@ function initilizeOrderSet() {
     vOrderSet = new Set(vpair);
 }
 
-//获取小图块的顺序（分 原始和当前）
-function getIDOrderArray(origin=false) {
-    let i, k;
-    k = grids * grids;
-    idOrder = new Array(k);
-    for(i = 0; i < k; i++) {
-        if(origin){
-            idOrder[i] = i;
-        }
-        else {
-            idOrder[i] = elmt_puzzle.childNodes[i].id;
-        }
-    }
-}
+function showImageBlocks() {
+	initilizeOrderSet();
 
-//分析得到各小图块的相互位置关系对
-function getIDPairArray() {
-    let i, j, k, m;
-    k = grids * grids;
-    hpair = Array((grids - 1) * grids);
-    m = 0;
-    for(i = 0; i < k; i = i + grids) {
-        for(j=i; j< i+grids-1; j++){
-            hpair[m] = idOrder[j] + "-" + idOrder[j+1]
-            m++
-        }
-    }
+	var v_W, v_H, left, top;
 
-    vpair = Array((grids - 1) * grids);
-    m = 0;
-    for(i = 0; i < grids; i++) {
-        for(j = 0; j < grids - 1; j++){
-            vpair[m] = idOrder[i + j*grids] + "-" + idOrder[i + (j+1)*grids]
-            m++
-        }
-    }
-}
-
-//更改游戏级别
-function changeLevel(level) {
-    grids = level;
-    initilizeOrderSet();
-    updatePuzzleDisplay();//重新加载图片
-}
-
-//浏览器大小改变的时候， 更新游戏区的显示
-function updatePuzzleDisplay() {
-    let img_W, img_H;
-    let ratio_W, ratio_H, ratio_WH;
-
-    img_small = document.getElementById('thumb');
-    img_W = img_small.naturalWidth;
-    img_H = img_small.naturalHeight;
-
-    findDimensions();
-
-    ratio_W = img_W / article_W;
-    ratio_H = img_H / article_H;
+    const ratio_W = imagebt.naturalWidth / puzzleview.clientWidth;//记录移动到页面的位置
+    const ratio_H = imagebt.naturalHeight / puzzleview.clientHeight;
     if (ratio_H > ratio_W) {
-        ratio_WH = ratio_H;
+		v_W = Math.ceil(imagebt.naturalWidth / ratio_H);
+		v_H = Math.ceil(imagebt.naturalHeight / ratio_H);
+		left = Math.floor((puzzleview.clientWidth - v_W) / 2);
+		top = 0;
     }
     else {
-        ratio_WH = ratio_W;
+		v_W = Math.floor(imagebt.naturalWidth / ratio_W);
+		v_H = Math.floor(imagebt.naturalHeight / ratio_W);
+		left = 0;
+		top = Math.floor((puzzleview.clientHeight - v_H) / 2);
     }
 
-    article_W = Math.floor(img_W / ratio_WH);
-    article_H = Math.floor(img_H / ratio_WH);
-    
-    hideShowThumb(-1);
-    showImageInGrids();
+    imageview.style.width = v_W + "px";
+    imageview.style.height = v_H + "px";
+	imageview.style.left = left + "px";
+	imageview.style.top = top + "px";
+	
+	//imageview.style.backgroundImage = 'url(' + imagebt.src + ')';
+
+	while(imageview.firstChild) {
+		imageview.removeChild(imageview.firstChild);
+	}
+	var blk, xpos, ypos, percentage;
+	var block;
+	percentage = 100 / (plevel - 1);
+	for(blk = 0; blk < plevel*plevel; blk++){
+		const block = document.createElement('li');
+		block.id = blk;
+		block.style.backgroundImage = 'url(' + imagebt.src +  ')';
+		block.style.width = imageview.clientWidth / plevel + "px";
+		block.style.height = imageview.clientHeight / plevel + "px";
+		block.style.backgroundSize = (plevel * 100) + '%';
+		xpos = (percentage * (blk % plevel)) + '%';
+		ypos = (percentage * Math.floor(blk / plevel)) + '%';
+		block.style.backgroundPosition = xpos + ' ' + ypos;
+		block.addEventListener("touchstart", blockTouched);
+		imageview.appendChild(block);	
+	}
+	shuffled = false;
+	playbt.innerText = "挑战";
+
+	reDrawBlocks = false;
 }
 
-//函数：获取工作区尺寸
-function findDimensions() 
-{    
-    if (document.documentElement)
-    {
-        let winHeight = document.documentElement.clientHeight;
-        let winWidth = document.documentElement.clientWidth;
-        let header_H = document.getElementById("header").clientHeight;
-        let footer_H = document.getElementById("footer").clientHeight;
-        let aside_W = document.getElementById("aside").clientWidth;
-        article_W = winWidth - aside_W;
-        article_H = winHeight - header_H - footer_H - 2;
-    }
-    else {
-        article_W = 400;
-        article_H = 300;
-    }
+function blockTouched(evt) {
+	evt.preventDefault();
+	// 获取触摸点的位置
+	const touch = evt.targetTouches[0];
+
+	const currentTouch = new Date().getTime();
+	const timeGap = currentTouch - lastTouch;	
+
+	if (timeGap < 200 && Math.abs(touch.pageX - toX) < posdiff && Math.abs(touch.pageY - toY) < posdiff) 
+	{
+		// 显示双击事件
+		blockDoubleTouched(evt)
+	} 
+	else 
+	{	 
+		evt.target.addEventListener("touchmove", blockTouchMoved);
+		evt.target.addEventListener("touchend", blockTouchEnded);
+		evt.target.style.filter = "brightness(0.5)";
+	}
+	lastTouch = currentTouch
+	toX = touch.pageX;
+	toY = touch.pageY;
 }
 
-//切换缩略图显示： 清晰和模糊
-function hideShowThumb(mode=0){
-    img_small = document.getElementById('thumb');
-    switch(mode){
-        case 1:
-            img_small.style.filter='none';
-            break;
-        case -1:
-            img_small.style.filter = "blur(10px)";
-            break;
-        case 0:
-            if(img_small.style.filter !='none') {
-                img_small.style.filter='none';
-            }
-            else {
-                img_small.style.filter = "blur(10px)";
-            }
-    }    
+function blockDoubleTouched(evt) {
+	let st = window.getComputedStyle(evt.target, null);
+	let tr = st.getPropertyValue("transform");
+	if( tr == "none" ) {
+		evt.target.style.transform = "rotate(0.5turn)";
+	}
+	else {
+		evt.target.style.transform = "";
+	}
+	checkImageStatus();
 }
 
-//初始化分块显示拼图
-function showImageInGrids() {
-    let blk, xpos, ypos, percentage;
-    let block;
-
-    percentage = 100 / (grids - 1);
-    elmt_puzzle = document.getElementById("puzzle_area");
-    img_small = document.getElementById('thumb');
-    
-    elmt_puzzle.style.width = article_W + "px";
-    elmt_puzzle.style.height = article_H + "px";
-    elmt_puzzle.innerHTML = '';
-    for(blk = 0; blk < grids*grids; blk++){
-        block = document.createElement('li');
-        block.id = blk;
-
-        block.style.backgroundImage = 'url(' + img_small.src + ')';
-        block.style.width = article_W / grids + "px";
-        block.style.height = article_H / grids + "px";
-        block.style.backgroundSize = (grids * 100) + '%';
-        xpos = (percentage * (blk % grids)) + '%';
-        ypos = (percentage * Math.floor(blk / grids)) + '%';
-        block.style.backgroundPosition = xpos + ' ' + ypos;
-        block.setAttribute('draggable', 'true');
-        block.onclick = (event) => {
-            /*event.target.style.transform = "rotate(0.5turn)"; */
-            let st = window.getComputedStyle(event.target, null);
-            let tr = st.getPropertyValue("transform");
-            if( tr == "none" ) {
-                event.target.style.transform = "rotate(0.5turn)";
-            }
-            else {
-                event.target.style.transform = "";
-            }
-            recordYourAction();
-            checkPuzzleStatus();
-        } 
-        block.ondragstart = (event) => event.dataTransfer.setData('nID', event.target.id);
-        block.ondragover = (event) => event.preventDefault();
-        block.ondrop = (event) => {
-            let nx = event.dataTransfer.getData('nID');
-            let ny = event.target.id;
-            switchNode(nx, ny, true);
-            checkPuzzleStatus();       
-        }
-        block.setAttribute('dragstart', 'true');
-        elmt_puzzle.appendChild(block);   
-    }
-    blockShuffle();
+function blockTouchMoved(evt) {
+	evt.preventDefault();
+	
+	const touch = evt.targetTouches[0];
+	// 获取触摸点的位置
+	toX = touch.pageX;
+	toY = touch.pageY;	
 }
 
-//更新步数和时间
-function recordYourAction() {
-    let lt;
-    nowTime = new Date().getTime();
-    lt = parseInt((nowTime - startTime) / 1000, 10);
-    updateProgressInfo(++steps, lt);
-}
+function blockTouchEnded(evt) {
+	evt.preventDefault();
+	evt.target.style.filter = "brightness(1)";
+	
+	const toelmt = document.elementFromPoint(toX, toY);
+	const ny = evt.target.id;
+	switchImgBlock(toelmt.id, ny, true);
 
-//更新步数和时间显示
-function updateProgressInfo(step, ltime) {
-    document.getElementById('stepCount').textContent = step ;
-    document.getElementById('timeLasting').textContent = ltime ;
-    if(step == 0 && ltime == 0) {
-        steps = 0; 
-        startTime = new Date().getTime();
-    }
-}
-
-//检查是否完成任务
-function checkPuzzleStatus() {
-    if(verifyOrderOfID()) {
-        hideShowThumb(1);
-        document.getElementById("tipinfo").textContent = "世界重归和平，感谢你！";
-    }    
-}
-
-//检查小图块的旋转状态和先后顺序
-function verifyOrderOfID() {
-    let i, j, k;
-    let st, tr;
-    k = elmt_puzzle.children.length;
-    for (i = 0; i < k; i++) {
-        if(elmt_puzzle.childNodes[i].id != i){
-            return false;
-        }
-        st = window.getComputedStyle(elmt_puzzle.childNodes[i], null);
-        tr = st.getPropertyValue("transform");
-        if( tr != "none" ) {
-            return false;
-        }        
-    }
-    return true;
+	evt.target.removeEventListener("touchmove", blockTouchMoved);
+	evt.target.removeEventListener("touchend", blockTouchEnded);
 }
 
 //交换两个小图块的位置
-function switchNode(xID, yID, count=false) {
+function switchImgBlock(xID, yID) {
     if(xID == yID){
         return;
     }
 
-    let nodex = document.getElementById(xID);
-    let nodey = document.getElementById(yID);
-    let nodexn = nodex.nextSibling;
-    let nodeyn = nodey.nextSibling;
+    const nodex = document.getElementById(xID);
+    const nodey = document.getElementById(yID);
+    const nodexn = nodex.nextSibling;
+    const nodeyn = nodey.nextSibling;
 
     if(nodexn) {
         if(nodexn == nodey){
-            elmt_puzzle.insertBefore(nodey, nodex);
+            imageview.insertBefore(nodey, nodex);
         }
         else {
-            elmt_puzzle.insertBefore(nodex, nodey);
-            elmt_puzzle.insertBefore(nodey, nodexn);
+            imageview.insertBefore(nodex, nodey);
+            imageview.insertBefore(nodey, nodexn);
         }        
     }
     else {
         if(nodeyn == nodex){
-            elmt_puzzle.insertBefore(nodex, nodey);
+            imageview.insertBefore(nodex, nodey);
         }
         else {
-            elmt_puzzle.insertBefore(nodey, nodex);
-            elmt_puzzle.insertBefore(nodex, nodeyn);
+            imageview.insertBefore(nodey, nodex);
+            imageview.insertBefore(nodex, nodeyn);
         }
     }
-
-    if(count) {
-        recordYourAction();
-    }
+	checkImageStatus();
 }
 
-//关于
-function about() {
-    alert('Developed by Felix Lin. \nEnjoy it!');
-}
-
-//选择新的图片
-function selectNewPicture() {
-    let selected = document.getElementById("selectPicture").files;
-    if (!selected || !selected[0]) {
-        return;
-    }
-
-    img_small = document.getElementById('thumb');
-    let reader = new FileReader();
-    reader.onload = function (evt) {
-        let todo = evt.target.result;
-        img_small.src = todo;
-    }
-    reader.readAsDataURL(selected[0]);
+function checkImageStatus() {
+	if (isImageRecovered()) {
+		shuffled = false;
+		playbt.innerText = "重来";
+		audio.play();
+	} else {
+		shuffled = true;
+		playbt.innerText = "原图";
+	}
 }
 
 //重排图片
 function blockShuffle() {
     let i, j, k, r;
-    k = grids * grids;
+    k = plevel * plevel;
     for (i = 0; i < k; i++) {
         r = Math.random();
         if(r >= 0.3) {
-            elmt_puzzle.childNodes[i].style.transform = "rotate(0.5turn)";
+            imageview.childNodes[i].style.transform = "rotate(0.5turn)";
         }
         j = Math.floor(r * k);
         if( i != j) {
-            idx = elmt_puzzle.childNodes[i].id
-            idy = elmt_puzzle.childNodes[j].id
-            switchNode(idx, idy);
+            idx = imageview.childNodes[i].id
+            idy = imageview.childNodes[j].id
+            switchImgBlock(idx, idy);
         }        
     }
 
     fullyShuffleBlocks();
-    hideShowThumb(-1);
-    document.getElementById("tipinfo").textContent = "来，拯救这个世界！";
-    updateProgressInfo(0, 0);
+	
+	shuffled = true;
+	playbt.innerText = "原图";
 }
 
 //将小图块完全打乱
@@ -311,7 +265,7 @@ function fullyShuffleBlocks() {
         }
         for(i=0; i < k; i++) {
             disblk = disOrder[i].split("-");
-            switchNode(disblk[0], disblk[1]);
+            switchImgBlock(disblk[0], disblk[1]);
         }
     }
 }
@@ -335,5 +289,85 @@ function findNotShuffledPair() {
     }
 }
 
-initilizeOrderSet();
-window.onresize=updatePuzzleDisplay;
+//获取小图块的顺序（分 原始和当前）
+function getIDOrderArray(origin=false) {
+    let i, k;
+    k = plevel * plevel;
+    idOrder = new Array(k);
+    for(i = 0; i < k; i++) {
+        if(origin){
+            idOrder[i] = i;
+        }
+        else {
+            idOrder[i] = imageview.childNodes[i].id;
+        }
+    }
+}
+
+//分析得到各小图块的相互位置关系对
+function getIDPairArray() {
+    let i, j, k, m;
+    k = plevel * plevel;
+    hpair = Array((plevel - 1) * plevel);
+    m = 0;
+    for(i = 0; i < k; i = i + plevel) {
+        for(j=i; j< i+plevel-1; j++){
+            hpair[m] = idOrder[j] + "-" + idOrder[j+1]
+            m++
+        }
+    }
+
+    vpair = Array((plevel - 1) * plevel);
+    m = 0;
+    for(i = 0; i < plevel; i++) {
+        for(j = 0; j < plevel - 1; j++){
+            vpair[m] = idOrder[i + j*plevel] + "-" + idOrder[i + (j+1)*plevel]
+            m++
+        }
+    }
+}
+
+//检查小图块的旋转状态和先后顺序
+function isImageRecovered() {
+    let i, j, k;
+    let st, tr;
+    k = imageview.children.length;
+    for (i = 0; i < k; i++) {
+        if(imageview.childNodes[i].id != i){
+            return false;
+        }
+        st = window.getComputedStyle(imageview.childNodes[i], null);
+        tr = st.getPropertyValue("transform");
+        if( tr != "none" ) {
+            return false;
+        }        
+    }
+    return true;
+}
+
+function updateImageDisplay(evt) {
+	const curFiles = selectimg.files;
+	if(curFiles.length !== 0) {
+		console.log(curFiles[0].name);
+		var reader = new FileReader();
+		reader.readAsDataURL(curFiles[0]);
+		reader.onload = function (evt) {
+			const loadedimg = evt.target.result;		
+			imagebt.src = loadedimg;
+		}
+	}	
+}
+
+function orientationChange() {
+	if (porientation !== window.orientation)
+	{
+		reDrawBlocks = true;
+		porientation = window.orientation;
+	}
+}
+
+function sizeChange() {
+	if(reDrawBlocks) {
+		showImageBlocks();
+	}
+}
