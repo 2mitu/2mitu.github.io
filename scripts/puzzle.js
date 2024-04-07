@@ -14,6 +14,19 @@ const posdiff = 80;
 var hpair, vpair, disOrder, idOrder;
 var hOrderSet, vOrderSet;
 
+//获取设备的显示区大小
+var w_min, w_max;
+const w_width = document.documentElement.clientWidth;
+const w_height = document.documentElement.clientHeight;
+if(w_width < w_height) {
+		w_min = w_width;
+		w_max = w_height;
+	} else {
+		w_min = w_height;
+		w_max = w_width;
+	}
+
+//获取各个元素
 const playbt = document.querySelector('#play');
 const imagebt = document.querySelector('#selectbt');
 const selectimg = document.querySelector('#selectimage');
@@ -22,6 +35,7 @@ const imageview = document.querySelector('#img_area');
 const audio = document.getElementById("DoneAudio");      
 const level = document.querySelector('#level');
 
+//各元素添加事件
 selectimg.addEventListener('change', updateImageDisplay);
 level.addEventListener('change', levelChanged);
 
@@ -32,6 +46,7 @@ imagebt.addEventListener("load", loadNewImage);
 window.addEventListener("orientationchange", orientationChange);
 window.addEventListener("resize", sizeChange);
 
+//显示默认图片
 showImageBlocks();
 
 function levelChanged(evt) {
@@ -42,7 +57,6 @@ function levelChanged(evt) {
 
 
 function loadNewImage() {
-	console.log("hahaha");
 	showImageBlocks();
 }
 
@@ -83,9 +97,15 @@ function initilizeOrderSet() {
 function showImageBlocks() {
 	initilizeOrderSet();
 
-	var v_W, v_H, left, top;
+	//Remove previous blocks 
+	while(imageview.firstChild) {
+		imageview.removeChild(imageview.firstChild);
+	}
 
-    const ratio_W = imagebt.naturalWidth / puzzleview.clientWidth;//记录移动到页面的位置
+	//Recalculate imageview size and position
+	let v_W, v_H, left, top;
+
+    const ratio_W = imagebt.naturalWidth / puzzleview.clientWidth;
     const ratio_H = imagebt.naturalHeight / puzzleview.clientHeight;
     if (ratio_H > ratio_W) {
 		v_W = Math.ceil(imagebt.naturalWidth / ratio_H);
@@ -104,22 +124,22 @@ function showImageBlocks() {
     imageview.style.height = v_H + "px";
 	imageview.style.left = left + "px";
 	imageview.style.top = top + "px";
-	
-	//imageview.style.backgroundImage = 'url(' + imagebt.src + ')';
 
-	while(imageview.firstChild) {
-		imageview.removeChild(imageview.firstChild);
-	}
-	var blk, xpos, ypos, percentage;
-	var block;
-	percentage = 100 / (plevel - 1);
+	//show blocks	
+	let percentage = 100 / (plevel - 1);
+	let blk_w = imageview.clientWidth / plevel + "px";
+	let blk_h = imageview.clientHeight / plevel + "px";
+	let blk_url = 'url(' + imagebt.src +  ')';
+	let blk_size = (plevel * 100) + '%';
+
+	let block, blk, xpos, ypos;
 	for(blk = 0; blk < plevel*plevel; blk++){
-		const block = document.createElement('li');
+		block = document.createElement('li');
 		block.id = blk;
-		block.style.backgroundImage = 'url(' + imagebt.src +  ')';
-		block.style.width = imageview.clientWidth / plevel + "px";
-		block.style.height = imageview.clientHeight / plevel + "px";
-		block.style.backgroundSize = (plevel * 100) + '%';
+		block.style.backgroundImage = blk_url;
+		block.style.width = blk_w;
+		block.style.height = blk_h;
+		block.style.backgroundSize = blk_size;
 		xpos = (percentage * (blk % plevel)) + '%';
 		ypos = (percentage * Math.floor(blk / plevel)) + '%';
 		block.style.backgroundPosition = xpos + ' ' + ypos;
@@ -262,7 +282,7 @@ function fullyShuffleBlocks() {
     while (k > 0) {
         findNotShuffledPair();
         k = disOrder.length;
-        if(k == 0) {
+        if(k === 0) {
             break;
         }
         for(i=0; i < k; i++) {
@@ -348,16 +368,52 @@ function isImageRecovered() {
 }
 
 function updateImageDisplay(evt) {
-	const curFiles = selectimg.files;
-	if(curFiles.length !== 0) {
-		console.log(curFiles[0].name);
-		var reader = new FileReader();
-		reader.readAsDataURL(curFiles[0]);
-		reader.onload = function (evt) {
-			const loadedimg = evt.target.result;		
-			imagebt.src = loadedimg;
-		}
+	const files = selectimg.files;
+	if(files.length !== 0) {
+		let reader = new FileReader();
+		reader.readAsDataURL(files[0]);	
+		reader.onload = function(event){
+			let image = new Image(); //新建一个img标签(还没嵌入DOM节点)	
+			image.src =event.target.result;	
+			image.onload = function() {	
+				let canvas = document.createElement('canvas');
+				let context = canvas.getContext('2d');
+				let cr = getCompressRatio(image.width, image.height)
+				let imageWidth = image.width / cr;	//压缩后图片的大小	
+				let imageHeight = image.height / cr;
+				data = '';
+
+				canvas.width = imageWidth;	
+				canvas .height= imageHeight;	
+
+				context.drawImage(image, 0, 0, imageWidth, imageHeight);
+				data = canvas.toDataURL('image/jpeg');
+
+				//压缩完成显示到缩略图中
+				imagebt.src = data;	
+				}
+			}
 	}	
+}
+
+//计算合适的压缩率
+function getCompressRatio(img_w, img_h) {
+	let ra = 1, rz = 1, ratio = 1;
+
+	if(img_w < img_h) {
+		if(img_w > w_min || img_h > w_max) {
+			ra = img_w / w_min;
+			rz = img_h / w_max;
+		}
+	} else {
+		if(img_h > w_min || img_w > w_max) {
+			ra = img_h / w_min;
+			rz = img_w / w_max;
+		}
+	}
+
+	ratio = ra < rz ? ra : rz;
+	return ratio;
 }
 
 function orientationChange() {
