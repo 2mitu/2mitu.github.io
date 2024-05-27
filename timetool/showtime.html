@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 TRANSITIONAL//EN">
+<!-- saved from url=(0036)https://tools.arantius.com/stopwatch -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Show Time</title>
+</head>
+<style type="text/css">
+	body {
+		display: grid;
+		grid-template-rows: 2fr 1fr;
+		align-items:stretch;
+	}
+	#div1 {
+		grid-row: 1;
+		display: flex;
+		justify-content: center; 
+		align-items: center;
+	}
+
+	#div2 {
+		grid-row: 2;
+		display: grid;
+		grid-template-columns: 2fr 1fr;
+		border: thin solid grey;
+	}
+
+	#disp{
+		font-family: "bold";
+		text-align: center;
+		font-size: 8em;
+		margin: auto;
+	}
+
+	#div3 {
+		grid-column: 1;
+		display: flex;
+		justify-content: center; 
+		align-items: center;
+	}
+
+	#run_stop {
+		grid-column: 2
+		padding: 10px;
+		font-size: 3em;
+	}
+
+
+	#today{
+		font-family: "bold";
+		text-align: center;
+		border:none;	
+		font-size: 5em;
+		color: forestgreen;
+		margin: auto;
+	}
+
+</style>
+
+<body onload="load();">
+	<div id="div1">
+		<p id="disp">time</p>
+	</div>
+	<div id="div2">
+		<div id="div3">
+			<p id="today">today</p>
+		</div>
+		<button type="button" id="run_stop" onclick="startstop()" onfocus="this.blur()">Start / Stop</button>
+	</div>
+</body>
+<script type="text/javascript" defer>
+
+var toshow = false;
+var myDate;
+var th, tm, ts, ms, th, mytime;
+var t1, t2;
+var pn = 9;
+var pt = 16;
+var pname = "face/001.jpg";
+const tshow = document.getElementById("disp");
+const playbt = document.getElementById("run_stop");
+
+playbt.addEventListener('touchstart', touchPlay);
+
+function touchPlay(evt) {
+	evt.preventDefault();
+	evt.target.addEventListener('touchend', ShowTime);
+}
+
+function ShowTime(evt) {
+	evt.preventDefault();
+	startstop();
+	evt.target.removeEventListener('touchend', ShowTime);
+}
+
+function startstop() {
+	toshow = !toshow;
+	if (toshow) {
+		showToday();
+		t1 = setInterval(showCurrentTime, 2);
+	}
+	else {
+		clearInterval(t1);
+	}
+}
+
+function showCurrentTime() {
+	myDate = new Date();
+	th = myDate.getHours().toString().padStart(2,'0');
+	tm = myDate.getMinutes().toString().padStart(2,'0');
+	ts = myDate.getSeconds().toString().padStart(2,'0');
+	ms = myDate.getMilliseconds().toString().padStart(3,'0');
+	mytime = th + ":" + tm + ":" + ts + "." +  ms
+	tshow.innerHTML = mytime;
+//	console.log(mytime);
+}
+
+function load() {
+	showToday();
+	showCurrentTime();
+}
+
+function showToday() {
+	let td = new Date();
+	let dy = td.getFullYear().toString();
+	let dm = ("00" + (td.getMonth() + 1)).slice(-2);
+	let dd = ("00" + td.getDate()).slice(-2);
+	let dateString = dy + '-' + dm +'-' + dd;
+	document.getElementById("today").innerHTML = dateString;
+}
+</script>
+</html>

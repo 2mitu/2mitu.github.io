@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>图片对比显示</title>
+        <link href="styles/showimage.css" rel="stylesheet" />
+        <script src="scripts/showimage.js" defer></script>
+    </head>
+    <body>
+		<div id="image_area">
+			<ul id="images"> </ul>
+		</div>
+		<div id="operation_area">
+			<div id="op1">
+				<label for="img_number">显示图片数：</label><br>
+				<select id="img_number">
+					<option value="1">★</option>
+					<option value="2" selected>★★</option>
+					<option value="3">★★★</option>
+					<option value="4">★★★★</option>
+					<option value="6">★★★★★★</option>
+				</select>
+			</div>
+
+			<div id="op3">
+				<div id="descr">
+					<label  for="img_index">图片操作 :</label>
+				</div>
+				<select id="img_index">
+					<option value="-1" selected>所有图片</option>
+					<option value="0">#1图</option>
+					<option value="1">#2图</option>
+					<option value="2">#3图</option>
+					<option value="3">#4图</option>
+					<option value="4">#5图</option>
+					<option value="5">#6图</option>
+				</select>
+				<button id="zoom_original">1:1居中</button>
+				<button id="zoom_fitwidth">宽度适应</button>
+				<button id="zoom_fitheight">高度适应</button>
+				<button id="zoom_autofit">自适应</button>
+				<button id="img_select">选择图片</button>
+			</div>
+		</div>
+		<input id="selectimage" type="file" multiple accept="image/*" />
+    </body>
+</html>
