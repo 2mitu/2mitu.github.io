@@ -88,4 +88,7 @@ body {
 li {
 	float: left;
 	border: thin solid blue;
+	font-size: 8px;
+	color: red;
+	text-align: center;
 }

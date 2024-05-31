@@ -284,7 +284,7 @@ function showZoomValue(imgobj) {
 }
 
 function showExif(imgobj) {
-	console.log(imgobj.exif);
+	//console.log(imgobj.exif);
 	let exifkey = ['DateTimeOriginal', 'ExposureProgram', 'FNumber', 'ExposureTime', 'ISOSpeedRatings', 'MeteringMode', 'Flash'];
 	let imgexif = '';
 	for (let i = 0; i < exifkey.length; i++) {
