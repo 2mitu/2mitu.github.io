@@ -266,7 +266,7 @@ function changeCenterByKey(drt) {
     console.log("changeCenterByKey");
 	if (img1_do && !image1.autofit) {
         changeImageCenter(image1, drt);
-    } else if (showtwo && img2_do && image2.autofit) {
+    } else if (showtwo && img2_do && !image2.autofit) {
         changeImageCenter(image2, drt);
     }
 }
