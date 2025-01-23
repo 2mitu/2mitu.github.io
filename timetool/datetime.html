@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TimeStamp <--> DateTime</title>
+  <style>
+
+  </style>
+</head>
+<body>
+  <header>
+    <h2>日期时间转换</h1>
+  </header>
+
+    <div class="tool">
+      <h3>时间戳 <--> 日期时间</h3>
+      <p>毫秒数，从1970-01-01_00:00:00</p>
+      <input type="text" id="timestamp" value="1737540000888" required size="12" />
+	  <input id="todatetime" type="button" value="转换" />
+	  <p id="txt_dt">转换后的UTC日期时间</p>
+    </div>
+    <div class="tool">
+      <h3>日期时间 --> 时间戳</h3>
+      <input id="datetime" type="datetime-local" step=1 required />
+	  <input id="totimestamp" type="button" value="转换" />
+	  <p id="txt_ts">转换成时间戳</p>
+    </div>
+
+</body>
+<script type="text/javascript" defer>
+const txt_ts = document.getElementById("timestamp");
+const btn_ts = document.getElementById("totimestamp");
+const p_dt = document.getElementById("txt_dt");
+const txt_dt = document.getElementById("datetime");
+const btn_dt = document.getElementById("todatetime");
+const p_ts = document.getElementById("txt_ts");
+
+btn_dt.addEventListener('click', showDateTime);
+btn_ts.addEventListener('click', showTimeStamp);
+
+function showDateTime() {
+	let dt = new Date(parseInt(txt_ts.value));
+	let dtstr = "UTC:  " + dt.toISOString() + "  -->   LocalTime: " + dt.toLocaleString();
+	p_dt.innerHTML = dtstr;
+}
+
+function showTimeStamp() {
+	let dt = new Date(txt_dt.value);
+	p_ts.innerHTML = txt_dt.value + "  -->  " + dt.valueOf();
+}
+
+</script>
+</html>
