@@ -263,16 +263,14 @@ function processKeyUp(evt) {
 }
 
 function changeCenterByKey(drt) {
-    console.log("changeCenterByKey");
 	if (img1_do && !image1.autofit) {
-        changeImageCenter(image1, drt);
-    } else if (showtwo && img2_do && !image2.autofit) {
-        changeImageCenter(image2, drt);
-    }
+        	changeImageCenter(image1, drt);
+    	} else if (showtwo && img2_do && !image2.autofit) {
+        	changeImageCenter(image2, drt);
+    	}
 }
 
 function changeImageCenter(img, drt) {
-    console.log("changeImageCenter", drt);
     let ncx = img.cx;
     let ncy = img.cy;
     if (drt === 37) {
@@ -305,7 +303,6 @@ function changePercent(oldval, increase) {
             val = 0.005;
         }
     }
-    console.log("changePercent:", oldval, "-->", val);
     return val;
 }
 
@@ -343,10 +340,6 @@ function changeDisplayCenter(evt) {
 }
 
 function moveImage(img, x, y, cx, cy) {
-    console.log("Old position:", img.style.left, img.style.top);
-    console.log("New position:", x, y);
-    console.log("Old center:", img.cx, img.cy);
-    console.log("New center:", cx, cy);
 	img.style.left = x + 'px ';
 	img.style.top = y + 'px ';
 	img.cx = cx;
