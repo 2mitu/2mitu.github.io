@@ -136,7 +136,6 @@ function imageLoaded(evt) {
 	img.cy = 0.5;
 	img.autofit = true;
     img.title += '\nImage Size: ' + nw + " x " + nh;
-	console.log("Ratio:", img.rmin, img.ratio);
 }
 
 function displayImageAutoFitSize(image, imgnum) {
