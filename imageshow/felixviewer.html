@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>Show One or Two image</title>
+        <link href="styles/onetwo.css" rel="stylesheet" />
+        <script src="scripts/onetwo.js" defer></script>
+</head>
+
+<body>
+	<div id="div1">
+		<div id="imgarea1">
+			<img id="img1" src="" />
+		</div>
+		<div id="imgarea2">
+			<img id="img2" src="" />
+		</div>
+	</div>
+	<div id="div2">
+		<fieldset id="displayoption">
+		<legend>显示</legend>
+			<input type="checkbox" id="favorite" name="interest" value="favorite" checked />
+			<label for="favorite">收藏</label>
+			<br>
+			<input type="checkbox" id="discarded" name="interest" value="discarded" checked />
+			<label for="discarded">删除</label>
+			<br>
+			<input type="checkbox" id="others" name="interest" value="others" checked />
+			<label for="others">其他</label>
+			<br>
+			<input type="checkbox" id="showtwo" checked=false />
+			<label for="picnum">2张</label>
+			<p id='imgnum'> 当前/总数  </p>
+		</fieldset>
+		<button id="folder">选择文件夹</button>
+		<button id="previous">上一张</button>
+		<button id="next">下一张</button>
+		<button id="originalsize">1:1居中</button>
+		<button id="autofit">自适应</button>
+		<button id="delete">标记删除</button>
+		<button id="favorite">标记收藏</button>
+		<button id="export">导出列表</button>				
+		<input id="selectfolder" type="file" webkitdirectory />
+	</div>
+</body>
+</html>
