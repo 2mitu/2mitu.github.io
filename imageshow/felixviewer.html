@@ -10,36 +10,37 @@
 <body>
 	<div id="div1">
 		<div id="imgarea1">
-			<img id="img1" src="" />
+			<img id="del1" src="./images/del.jpg">
+			<img id="img1" src="./images/note.png" />
 		</div>
 		<div id="imgarea2">
+			<img id="del2" src="./images/del.jpg">
 			<img id="img2" src="" />
 		</div>
 	</div>
 	<div id="div2">
 		<fieldset id="displayoption">
 		<legend>显示</legend>
-			<input type="checkbox" id="favorite" name="interest" value="favorite" checked />
-			<label for="favorite">收藏</label>
+			<input type="radio" id="showall" name="interest" value="showall" checked />
+			<label for="others">全部</label>
 			<br>
-			<input type="checkbox" id="discarded" name="interest" value="discarded" checked />
-			<label for="discarded">删除</label>
+			<input type="radio" id="keep" name="interest" value="keep"/>
+			<label for="discarded">仅保留</label>
 			<br>
-			<input type="checkbox" id="others" name="interest" value="others" checked />
-			<label for="others">其他</label>
+			<input type="radio" id="discard" name="interest" value="discard"/>
+			<label for="others">仅删除</label>
 			<br>
 			<input type="checkbox" id="showtwo" checked=false />
 			<label for="picnum">2张</label>
 			<p id='imgnum'> 当前/总数  </p>
 		</fieldset>
 		<button id="folder">选择文件夹</button>
-		<button id="previous">上一张</button>
-		<button id="next">下一张</button>
+		<button id="previous"><-- 前</button>
+		<button id="next">后 --></button>
 		<button id="originalsize">1:1居中</button>
 		<button id="autofit">自适应</button>
 		<button id="delete">标记删除</button>
-		<button id="favorite">标记收藏</button>
-		<button id="export">导出列表</button>				
+		<button id="export">导出<br>删除列表</button>
 		<input id="selectfolder" type="file" webkitdirectory />
 	</div>
 </body>
