@@ -30,11 +30,21 @@ body {
 #imgarea1 {
 	display: flex;
 	overflow: hidden;
+	position: relative;
+}
+
+#del1, #del2 {
+	position: absolute;
+	left:46%;
+	top:20px;
+	z-index: 1;
+	display: none;
 }
 
 #imgarea2 {
 	display: none;
 	overflow: hidden;
+	position: relative;
 }
 
 #imgarea1, #imgarea2 {
