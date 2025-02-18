@@ -180,7 +180,7 @@ function imageLoaded(evt) {
 	img.cx = 0.5;
 	img.cy = 0.5;
 	img.autofit = true;
-    img.title += '\nImage Size: ' + nw + " x " + nh;
+    img.title += '\nImage size: ' + nw + " x " + nh;
 }
 
 function displayImageAutoFitSize(image, imgnum) {
