@@ -1,18 +1,19 @@
-//键盘操作：
-//按下方向键 左/右，将显示前一张/后一张。
-//数字键1表示选择左图，数字键2表示选择右图
+// 按键
+// 	方向键 左/右，用于显示前一张/后一张
+// 	数字键 1、2 用于选择左图、右图， 默认选1
+// 缩放 选中的图片
+// 	使用方向键上和下进行放大和缩小
+// 	或者按住Z键，鼠标指针移动到图片上，使用滚轮进行放大缩小
+// 移动 选中的图片
+// 	按住C键，方向键上、下、左、右进行相应方向的移动
+// 	或者按住C键，鼠标指针点击图片上希望显示的中心点
+// 标记删除 选中的图片
+// 	D 键 或者 鼠标点击“标记删除” 按钮
 
-//放大和缩小:
-//使用数字键1/2选择，使用方向键上和下进行放大和缩小；
-//或者按下Z键，将鼠标指针移动到图片上，使用滚轮对该图片进行放大缩小；
-
-//移动:先按下C键，
-//按下数字键1/2，使用方向键上、下、左、右进行相应方向的移动；
-//或者将鼠标指针移动到图片上某一点，此时按下鼠标左键将会把该点显示在视图中心；
 var showtwo = false;
 var showkeep = true;
 var showdiscard = true;
-var img1_do = false;
+var img1_do = true;
 var img2_do = false;
 var pressed_c = false;
 var pressed_z = false;
@@ -261,10 +262,6 @@ function processKeyDown(evt) {
         pressed_c = true;
 	} else if (evt.keyCode === 90) {
         pressed_z = true;
-	} else if (evt.keyCode === 49) {
-        img1_do = true;
-	} else if (evt.keyCode === 50) {
-        img2_do = true;
 	} 
 }
 
@@ -273,9 +270,15 @@ function processKeyUp(evt) {
 	if (kval === 67) {
 		pressed_c = false;
 	} else if (kval === 49) {
-        	img1_do = false;
+		// select #1 Image
+        	img1_do = true;
+			img2_do = false;
 	} else if (kval === 50) {
-        	img2_do = false;
+		if (showtwo) {
+			// select #2 Image
+        	img2_do = true;
+			img1_do = false;
+		}
 	} else if (kval === 90) {
 		pressed_z = false;
 	} else if (kval === 37) {
@@ -386,6 +389,8 @@ function showTwoOnClick(evt) {
 	}else{
 		imgarea2.style['display']= 'none';
 		showtwo = false;
+		img1_do = true;
+		img2_do = false;
 	}
 	setImageAreaSize(showtwo);
 	showImageAutoFit();
