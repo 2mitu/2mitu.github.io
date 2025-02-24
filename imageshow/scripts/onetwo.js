@@ -19,13 +19,14 @@ var pressed_c = false;
 var pressed_z = false;
 var imglist = new Array();
 var imgdel = new Array();
+var dirname = "";
 var curimg = 0;
 var sndimg = 0;
 var maxRatio = 2;
 var imgarea_w = 0;
 var imgarea_h = 0;
-var menu_w = 120;
-var checkbox_h = 170;
+var menu_w = 130;
+var checkbox_h = 190;
 var URL = window.URL || window.webkitURL
 
 //获取各个元素
@@ -92,6 +93,8 @@ function showTypeChanged(evt) {
 		showkeep = false;
 		showdiscard = true;
 	}
+	evt.target.blur();
+	image1.focus();
 }
 
 function getImages(evt) {
@@ -111,6 +114,10 @@ function getImages(evt) {
 		}
 	}
 	if (getnew) {
+		let nlen = imglist[0].name.length;
+		let plen = imglist[0].webkitRelativePath.length;
+		let dlen = plen - nlen - 1;
+		dirname = imglist[0].webkitRelativePath.slice(0, dlen);
 		showImageAutoFit();
 	}
 	//console.log('Image number:', imglist.length)
@@ -132,6 +139,8 @@ function showImageAutoFit() {
 function showPreviousImage() {
 	if (imglist.length > 1) {
 		curimg = getImageIndex(curimg, -1);
+		image1.style['transform'] = "none";
+		image2.style['transform'] = "none";
 		showImageAutoFit();
 	}
 }
@@ -139,6 +148,8 @@ function showPreviousImage() {
 function showNextImage() {
 	if (imglist.length > 1) {
 		curimg = getImageIndex(curimg, 1);
+		image1.style['transform'] = "none";
+		image2.style['transform'] = "none";
 		showImageAutoFit();
 	}
 }
@@ -166,57 +177,75 @@ function getImageIndex(cur, delta) {
 
 function imageLoaded(evt) {
 	let img = evt.target;
-	let nh = img.naturalHeight;
-    let nw = img.naturalWidth;
-	let ih = img.offsetHeight;
-    let ch = img.parentElement.clientHeight;
-    let cw = img.parentElement.clientWidth;
-	let rh = Math.round(1000 * ih / nh) / 1000;
-    if ( nh <= ch && nw <= cw) {
-        img.rmin = 1;
-    } else {
-	    img.rmin = rh;
-    }
-	img.ratio = img.rmin;
+	calculateImageDisplayRatio(img, false);
+	img.rotated = false;
 	img.cx = 0.5;
 	img.cy = 0.5;
 	img.autofit = true;
-    img.title += '\nImage size: ' + nw + " x " + nh;
+	img.title += '\nImage size: ' + img.naturalWidth + " x " + img.naturalHeight;
 }
 
-function displayImageAutoFitSize(image, imgnum) {
+function calculateImageDisplayRatio(img) {
+	let nh = img.naturalHeight;
+    let nw = img.naturalWidth;
+
+	if (img.rotated) {
+		nh = img.naturalWidth;
+		nw = img.naturalHeight;
+	}
+	
+    let ch = img.parentElement.clientHeight;
+    let cw = img.parentElement.clientWidth;
+	
+	let rh = Math.round(1000 * ch / nh) / 1000;
+	let rw = Math.round(1000 * cw / nw) / 1000;
+    if ( nh <= ch && nw <= cw) {
+        img.rmin = 1;
+    } else {
+	    img.rmin = Math.min(rh, rw);
+    }
+	img.ratio = img.rmin;
+}	
+
+function displayImageAutoFitSize(img, imgnum) {
 	let imgf = imglist[imgnum];
-    let ctn = image.parentElement;
+    let ctn = img.parentElement;
 	ctn.style['justify-content'] = 'center';
 	ctn.style['align-items'] = 'center';
-	image.style['object-fit'] = 'scale-down';
-	image.style['max-width'] = '100%';
-	image.style['max-height'] = '100%';
-	image.style.width = 'auto';
-	image.style.height = 'auto';
-	image.src = URL.createObjectURL(imgf);
-	image.style.left = 'auto';
-	image.style.top = 'auto';
-    image.title = imgf.webkitRelativePath + "\nFile size: " + imgf.size + " bytes";
+	img.style['object-fit'] = 'scale-down';
+	img.style['max-width'] = '100%';
+	img.style['max-height'] = '100%';
+	img.style.width = 'auto';
+	img.style.height = 'auto';
+	img.src = URL.createObjectURL(imgf);
+	img.style.left = 'auto';
+	img.style.top = 'auto';
+	img.style["transform-origin"] = "center";
+	img.style['transform'] = "none";
+	img.rotated = false;
+    img.title = imgf.webkitRelativePath + "\nFile size: " + imgf.size + " bytes";
 }
 
-function showImageByRatio(image, ratio) {
-	let ctn = image.parentElement;
+function showImageByRatio(img, ratio) {
+	let ctn = img.parentElement;
 	ctn.style['justify-content'] = 'flex-start';
 	ctn.style['align-items'] = 'flex-start';
-	image.style['object-fit'] = 'contain';
-	image.style['max-width'] = 'none';
-	image.style['max-height'] = 'none';
-	let imgw = Math.floor(image.naturalWidth * ratio);
-	let imgh = Math.floor(image.naturalHeight * ratio);
-	let cleft = image.cx * imgw;
-	let ctop = image.cy * imgh;
-	image.style.width = imgw + 'px';
-	image.style.height = imgh + 'px';
-	image.style.left = Math.floor(ctn.clientWidth / 2 - cleft) + 'px';
-	image.style.top = Math.floor(ctn.clientHeight / 2 - ctop) + 'px';
-	image.ratio = ratio;
-    image.autofit = false;
+	img.style['object-fit'] = 'contain';
+	img.style['max-width'] = 'none';
+	img.style['max-height'] = 'none';
+	let imgw = Math.floor(img.naturalWidth * ratio);
+	let imgh = Math.floor(img.naturalHeight * ratio);
+	let cleft = img.cx * imgw;
+	let ctop = img.cy * imgh;
+	img.style.width = imgw + 'px';
+	img.style.height = imgh + 'px';
+	img.style.left = Math.floor(ctn.clientWidth / 2 - cleft) + 'px';
+	img.style.top = Math.floor(ctn.clientHeight / 2 - ctop) + 'px';
+	img.ratio = ratio;
+    img.autofit = false;
+	if (img.rotated) {
+		img.style["transform-origin"] = cleft + "px " + ctop + "px";
+	}
 //	console.log("--------------------");
 //	console.log("natural size:", image.naturalWidth, image.naturalHeight);
 //	console.log("image left & top", image.style.left, image.style.top);
@@ -308,6 +337,30 @@ function processKeyUp(evt) {
     } else if (evt.keyCode === 68) {
         //标记/取消 删除
 		changeSelectedImageDeleteStatus(); 
+	} else if (evt.keyCode === 82) {
+        //旋转图片
+		if (evt.shiftKey) {
+			rotateSelectedImage(-90);
+		} else {
+			rotateSelectedImage(90);
+		}			
+	}
+	
+}
+
+function rotateSelectedImage(dgr) {
+	let img = null;
+	if (img1_do) {
+		img = image1;
+	} else if (img2_do) {
+		img = image2;
+	}
+	if (img) {
+		img.style['transform'] = "rotate(" + dgr + "deg)";
+		img.rotated = true;
+		img.dgr = dgr;
+		calculateImageDisplayRatio(img);
+		showImageByRatio(img, img.rmin);
 	}
 }
 
@@ -338,9 +391,24 @@ function showDelMark(delmark, imgindex) {
 }
 
 
-function changeImageCenter(img, drt) {
+function changeImageCenter(img, todrt) {
     let ncx = img.cx;
     let ncy = img.cy;
+	let drt = todrt;
+	if (img.rotated) {
+		if (img.dgr == 90) {
+			drt = todrt - 1;
+			if (drt == 36) {
+				drt = 40
+			}
+		} else if (img.dgr == -90) {
+			drt = todrt +1;
+			if (drt == 41) {
+				drt = 37
+			}
+		}
+	}
+	
     if (drt === 37) {
         ncx = changePercent(ncx, true);
     } else if (drt === 38) {
@@ -350,13 +418,42 @@ function changeImageCenter(img, drt) {
     } else if (drt === 40) {
         ncy = changePercent(ncy, false);
     } 
-
-    let nx = Math.round(ncx * img.offsetWidth);
-    let ny = Math.round(ncy * img.offsetHeight);
-   	let shift_x = Math.ceil(img.parentElement.clientWidth / 2 ) - nx;
-    let shift_y = Math.ceil(img.parentElement.clientHeight / 2) - ny;
-   	moveImage(img, shift_x, shift_y, ncx, ncy);
+   	moveImage(img, ncx, ncy);
 }
+
+function changeDisplayCenter(evt) {
+    let img = evt.target
+	if (pressed_c && !img.autofit) {
+	    let ncx = Math.round(1000 * evt.offsetX / img.offsetWidth) / 1000;
+    	let ncy = Math.round(1000 * evt.offsetY / img.offsetHeight) / 1000;
+    	moveImage(img, ncx, ncy);
+    }
+}
+
+function moveImage(img, cx, cy) {
+	let dw = img.offsetWidth;
+	let dh = img.offsetHeight;
+	let pw = img.parentElement.clientWidth;
+	let ph = img.parentElement.clientHeight;
+	
+    let nx = Math.round(cx * dw);
+    let ny = Math.round(cy * dh);
+   	let n_left = Math.ceil(pw / 2) - nx;
+    let n_top = Math.ceil(ph / 2) - ny;
+	
+	let valid_left = n_left < pw/3 && n_left > (2*pw/3 - dw);
+	let valid_top = n_top < ph/3 && n_top > (2*ph/3 - dh);
+	if (valid_left && valid_top) {
+		img.style.left = n_left + 'px ';
+		img.style.top = n_top + 'px ';
+		img.cx = cx;
+		img.cy = cy;
+		if (img.rotated) {
+			img.style["transform-origin"] = nx + "px " + ny + "px";
+		}
+	}
+}
+
 
 function changePercent(oldval, increase) {
     let val = oldval;
@@ -392,31 +489,11 @@ function showTwoOnClick(evt) {
 		img1_do = true;
 		img2_do = false;
 	}
+	image1.style['transform'] = "none";
+	image2.style['transform'] = "none";
 	setImageAreaSize(showtwo);
 	showImageAutoFit();
 }
-
-
-
-function changeDisplayCenter(evt) {
-    let img = evt.target
-	if (pressed_c && !img.autofit) {
-	    let ncx = Math.round(1000 * evt.offsetX / img.offsetWidth) / 1000;
-    	let ncy = Math.round(1000 * evt.offsetY / img.offsetHeight) / 1000;
-    	let shift_x = Math.ceil(img.parentElement.clientWidth / 2 ) - evt.offsetX;
-	    let shift_y = Math.ceil(img.parentElement.clientHeight / 2) - evt.offsetY;
-    	moveImage(img, shift_x, shift_y, ncx, ncy);
-    }
-}
-
-function moveImage(img, x, y, cx, cy) {
-	img.style.left = x + 'px ';
-	img.style.top = y + 'px ';
-	img.cx = cx;
-	img.cy = cy;
-}
-
-
 
 function zoomImageByMouse(evt) {
 	if ( pressed_z ) {
@@ -458,12 +535,12 @@ function exportDeletedFileInfo(evt) {
 	}
 	let nextline = '\n';
 	let del_cmd = 'rm "';
-	let delfn = "delete.sh";
+	let delfn = "delete_" + dirname + ".sh";
 	let delinfo = "#Following files will be deleted";
 	if (OS_win) {
 		nextline = '\r\n';
 		del_cmd = 'del "';
-		delfn = "delete.cmd";
+		delfn = "delete_" + dirname + ".cmd";
 		delinfo = "REM Following files will be deleted" + nextline + "chcp 65001";
 	}
 	
