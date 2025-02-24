@@ -26,7 +26,7 @@ var maxRatio = 2;
 var imgarea_w = 0;
 var imgarea_h = 0;
 var menu_w = 130;
-var checkbox_h = 190;
+var checkbox_h = 170;
 var URL = window.URL || window.webkitURL
 
 //获取各个元素
