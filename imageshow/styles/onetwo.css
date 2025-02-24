@@ -63,6 +63,6 @@ body {
 	display: none;
 }
 
-#previous, #next, #delete, #favorite {
+#previous, #next, #delete, #export {
 	background-color: azure;
 }
