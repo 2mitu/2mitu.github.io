@@ -19,6 +19,7 @@ var pressed_c = false;
 var pressed_z = false;
 var imglist = new Array();
 var imgdel = new Array();
+var imgurl = new Array();
 var dirname = "";
 var curimg = 0;
 var sndimg = 0;
@@ -100,17 +101,17 @@ function showTypeChanged(evt) {
 function getImages(evt) {
 	let getnew = false;
 	for (let f of getfolder.files) {
-		if (f.type.indexOf("image")!=-1 ) {
+		if (f.type.indexOf("image")!=-1 || f.name.indexOf(".HEIC")!=-1) {
 			if (!getnew) {
 				imglist.length = 0;
 				imgdel.length = 0;
+				imgurl.length = 0;
 				curimg = 0;
 				getnew = true;
 			}
-		//	let imgsrc = URL.createObjectURL(f);
-		//	imglist.push(imgsrc);
 			imglist.push(f);
 			imgdel.push(false);
+			imgurl.push(null);
 		}
 	}
 	if (getnew) {
@@ -217,13 +218,41 @@ function displayImageAutoFitSize(img, imgnum) {
 	img.style['max-height'] = '100%';
 	img.style.width = 'auto';
 	img.style.height = 'auto';
-	img.src = URL.createObjectURL(imgf);
+	if (imgurl[imgnum] != null){
+		img.src = imgurl[imgnum];
+	} else {
+		if (imgf.type.indexOf("image")!=-1) {
+			img.src = URL.createObjectURL(imgf);
+			imgurl[imgnum] = img.src;
+		} else if (imgf.name.indexOf(".HEIC")!=-1) {
+			img.src = null;
+			getHeicImageUrl(img, imgf, imgnum);
+		};
+	}
 	img.style.left = 'auto';
 	img.style.top = 'auto';
 	img.style["transform-origin"] = "center";
 	img.style['transform'] = "none";
 	img.rotated = false;
     img.title = imgf.webkitRelativePath + "\nFile size: " + imgf.size + " bytes";
+}
+
+async function getHeicImageUrl(imgobj, fimg, inum) {
+	// 转换 HEIC 为 JPEG
+	imgobj.alt = "Loding HEIC image...";
+	try {
+		const convertedBlob = await heic2any({
+		blob: fimg,
+		toType: 'image/jpeg',
+		quality: 0.8 // 质量参数（0-1）
+		});
+		// 生成临时 URL 并显示
+		imgobj.src = URL.createObjectURL(convertedBlob);
+		imgurl[inum] = imgobj.src;
+		imgobj.alt = '';
+	} catch (error) {
+		imgobj.alt = `转换失败: ${error.message}`;
+	} 
 }
 
 function showImageByRatio(img, ratio) {
